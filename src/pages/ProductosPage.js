@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/api';
+import apiProveedores from '../api/apiProveedores'
 import './Producto.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,7 +38,7 @@ export default function ProductosPage() {
 
   const verDetalles = async producto => {
     try {
-      const proveedor = await api.get(`/proveedores/${producto.proveedorId}`);
+      const proveedor = await apiProveedores.get(`/proveedores/id/${producto.proveedorId}`);
       setProductoSeleccionado({ ...producto, proveedor: proveedor.data });
     } catch (error) {
       console.error('Error al consultar proveedor:', error);
