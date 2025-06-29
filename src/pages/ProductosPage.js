@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../api/api';
 import apiProveedores from '../api/apiProveedores'
 import './Producto.css';
-import { useNavigate } from 'react-router-dom';
+import keycloak from '../api/keycloack';
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState([]);
@@ -17,8 +17,6 @@ export default function ProductosPage() {
     stock: '',
     proveedorId: ''
   });
-
-  const navigate = useNavigate();
 
   const cargarProductos = async () => {
     const res = await api.get('/productos');
@@ -47,8 +45,9 @@ export default function ProductosPage() {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
+    keycloak.logout({
+      redirectUri: window.location.origin // Esto te regresa al inicio después de cerrar sesión
+    });
   };
 
   useEffect(() => {

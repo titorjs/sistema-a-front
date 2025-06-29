@@ -1,35 +1,31 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.css';
+import keycloak from '../api/keycloack'; // debe exportar solo el objeto Keycloak
 
-export default function LoginPage() {
-  const [form, setForm] = useState({ username: '', password: '' });
+const LoginPage = () => {
   const navigate = useNavigate();
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  useEffect(() => {
+    keycloak.init({ onLoad: 'login-required' }).then(authenticated => {
+      if (authenticated) {
+        localStorage.setItem('token', keycloak.token);
+        localStorage.setItem('refreshToken', keycloak.refreshToken);
+        localStorage.setItem('username', keycloak.tokenParsed?.preferred_username);
+        localStorage.setItem('email', keycloak.tokenParsed?.email);
 
-  const handleSubmit = async e => {
-  e.preventDefault();
-  try {
-    const res = await axios.post('http://localhost:8080/api/v1/auth/login', form);
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('nombre', res.data.nombre);
-    navigate('/productos');
-  } catch (err) {
-    alert('Credenciales inválidas');
-  }
-};
-
+        console.log('Autenticado con Keycloak');
+        navigate('/productos');
+      } else {
+        console.warn('No autenticado');
+      }
+    });
+  }, []);
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form className="login-form" onSubmit={handleSubmit}>
-        <input name="username" placeholder="Usuario" onChange={handleChange} />
-        <input name="password" type="password" placeholder="Contraseña" onChange={handleChange} />
-        <button type="submit">Ingresar</button>
-      </form>
+    <div className="container mt-5 text-center">
+      <h3>Redirigiendo a Keycloak para iniciar sesión...</h3>
     </div>
   );
-}
+};
+
+export default LoginPage;
