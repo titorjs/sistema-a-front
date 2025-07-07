@@ -1,25 +1,16 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import keycloak from '../api/keycloack'; // debe exportar solo el objeto Keycloak
+import { useAuth } from '../context/AuthProvider';
 
 const LoginPage = () => {
+  const { authenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    keycloak.init({ onLoad: 'login-required' }).then(authenticated => {
-      if (authenticated) {
-        localStorage.setItem('token', keycloak.token);
-        localStorage.setItem('refreshToken', keycloak.refreshToken);
-        localStorage.setItem('username', keycloak.tokenParsed?.preferred_username);
-        localStorage.setItem('email', keycloak.tokenParsed?.email);
-
-        console.log('Autenticado con Keycloak');
-        navigate('/productos');
-      } else {
-        console.warn('No autenticado');
-      }
-    });
-  }, []);
+    if (authenticated) {
+      navigate('/productos');
+    }
+  }, [authenticated]);
 
   return (
     <div className="container mt-5 text-center">

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import api from '../api/api';
-import apiProveedores from '../api/apiProveedores'
 import './Producto.css';
-import keycloak from '../api/keycloack';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const nombreUsuario = localStorage.getItem('nombre');
+  const navigate = useNavigate();
 
   const [nuevo, setNuevo] = useState({
     nombre: '',
@@ -36,18 +36,12 @@ export default function ProductosPage() {
 
   const verDetalles = async producto => {
     try {
-      const proveedor = await apiProveedores.get(`/proveedores/id/${producto.proveedorId}`);
+      const proveedor = await api.get(`/productos/proveedor-externo/${producto.proveedorId}`);
       setProductoSeleccionado({ ...producto, proveedor: proveedor.data });
     } catch (error) {
       console.error('Error al consultar proveedor:', error);
       setProductoSeleccionado({ ...producto, proveedor: { nombre: 'Error al cargar proveedor' } });
     }
-  };
-
-  const logout = () => {
-    keycloak.logout({
-      redirectUri: window.location.origin // Esto te regresa al inicio después de cerrar sesión
-    });
   };
 
   useEffect(() => {
@@ -59,7 +53,7 @@ export default function ProductosPage() {
       <div className="header">
         <h2>Productos</h2>
         <div className="user-info">Bienvenido, {nombreUsuario}</div>
-        <button className="btn-logout" onClick={logout}>Cerrar Sesión</button>
+        <button className="btn-logout" onClick={() => navigate('/logout')}>Cerrar Sesión</button>
       </div>
 
       <form className="formulario" onSubmit={crearProducto}>
